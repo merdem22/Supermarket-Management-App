@@ -1,73 +1,89 @@
-# src/routes/sales.py
-from flask import Blueprint, jsonify, request
-from src.db_connection import get_connection
+from flask import Blueprint, render_template, request
+from src.db_connection import get_db_connection
 
-sales_blueprint = Blueprint('sales', __name__)
+sales_bp = Blueprint('sales_bp', __name__)
 
-@sales_blueprint.route('/', methods=['POST'])
-def create_sale():
-    data = request.json
+@sales_bp.route('/sales')
+def list_sales():
+    sort_column = request.args.get('sort', 'sale_date')
+    allowed_sorts = ['sale_date', 'total_amount']  # or define how you want to sort
+
+    if sort_column not in allowed_sorts:
+        sort_column = 'sale_date'
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
     
-    customer_id = data['customer_id']
-    employee_id = data['employee_id']
-    payment_method = data['payment_method']
-    sale_date = data['sale_date']  # in YYYY-MM-DD HH:MM:SS format or handle it in Python
-    discount_id = data.get('discount_id')  # might be None
-    items = data['items']  # list of { product_id, quantity }
+    # For demonstration, let's do a subquery or a joined query that
+    # calculates total_amount. But if we store total_amount directly, we can just order by that.
+    # We'll keep it simple and just get the Sale columns for now.
+    query = f"SELECT s.*, c.first_name AS customer_first, c.last_name AS customer_last "
+    query += f"FROM Sale s JOIN Customer c ON s.customer_id = c.customer_id "
+    query += f"ORDER BY s.{sort_column} DESC"
 
-    # Example: items = [
-    #   { "product_id": 1, "quantity": 2 },
-    #   { "product_id": 3, "quantity": 1 }
-    # ]
+    cursor.execute(query)
+    sales = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
 
-    conn = get_connection()
-    cursor = conn.cursor()
-    try:
-        # 1) Insert the sale row (Sale table)
-        insert_sale_sql = """
-            INSERT INTO Sale (customer_id, employee_id, payment_method, sale_date, rewards_points_used, discount_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        # For now, assume rewards_points_used is 0 (or you can pass it in data)
-        cursor.execute(insert_sale_sql, (customer_id, employee_id, payment_method, sale_date, 0, discount_id))
-        sale_id = cursor.lastrowid
-        
-        # 2) Insert line items into Sale_Product
-        for item in items:
-            product_id = item['product_id']
-            quantity = item['quantity']
-            
-            cursor.execute("""
-                INSERT INTO Sale_Product (sale_id, product_id, quantity)
-                VALUES (%s, %s, %s)
-            """, (sale_id, product_id, quantity))
-            
-            # 3) Deduct quantity from Product table
-            cursor.execute("""
-                UPDATE Product
-                SET quantity_in_stock = quantity_in_stock - %s
-                WHERE product_id = %s
-            """, (quantity, product_id))
+    return render_template('sales.html', sales=sales, sort=sort_column)
 
-        # 4) Apply discount logic and reward points (optional advanced approach):
-        #    - Compute the total from the line items
-        #    - Determine if discount threshold is met
-        #    - Etc.
-        #    For demonstration, we'll keep it simple.
-        
-        # 5) Optionally update the customer's reward_points
-        #    e.g., if you want 1 point per $1, do something like:
-        #    cursor.execute("""
-        #      UPDATE Customer
-        #      SET reward_points = reward_points + %s
-        #      WHERE customer_id = %s
-        #    """, (points_earned, customer_id))
-        
-        conn.commit()
-        return jsonify({"message": "Sale created successfully", "sale_id": sale_id}), 201
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 400
-    finally:
+
+@sales_bp.route('/sales/<int:sale_id>')
+def sale_detail(sale_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 1) Get the main sale info, including discount, customer, etc.
+    cursor.execute("""
+        SELECT s.*, c.first_name as customer_first, c.last_name as customer_last,
+               d.discount_type
+        FROM Sale s
+        JOIN Customer c ON s.customer_id = c.customer_id
+        LEFT JOIN Discount d ON s.discount_id = d.discount_id
+        WHERE s.sale_id = %s
+    """, (sale_id,))
+    sale = cursor.fetchone()
+    if not sale:
         cursor.close()
         conn.close()
+        return "Sale not found", 404
+
+    # 2) Get the line items
+    cursor.execute("""
+        SELECT sp.quantity, p.product_id, p.product_name, p.unit_price
+        FROM Sale_Product sp
+        JOIN Product p ON sp.product_id = p.product_id
+        WHERE sp.sale_id = %s
+    """, (sale_id,))
+    line_items = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # 3) Calculate totals on the Python side if you want
+    subtotal = 0
+    for item in line_items:
+        cost = item['unit_price'] * item['quantity']
+        subtotal += cost
+
+    discount_amount = 0
+    # If discount_type is 'over_threshold', you might check threshold
+    # If discount_type is 'percentage', do that. We'll do a simple example:
+
+    if sale['discount_type'] == 'over_threshold':
+        # you'd need threshold, discount_amount from OverThresholdDiscount
+        # either join them or do a second query
+        pass
+    elif sale['discount_type'] == 'percentage':
+        # you'd need percentage from PercentageDiscount
+        pass
+
+    total_with_discount = subtotal  # adjust once you implement discount logic
+
+    return render_template('sale_detail.html',
+                           sale=sale,
+                           line_items=line_items,
+                           subtotal=subtotal,
+                           total_with_discount=total_with_discount)

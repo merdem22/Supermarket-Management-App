@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Customer: {{ customer.first_name }} {{ customer.last_name }}</h2>
+  <p>Reward Points: {{ customer.reward_points }}</p>
+  <p>Email: {{ customer.email }}</p>
+  <p>Phone: {{ customer.phone_number }}</p>
+
+  <h3>Past Transactions</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Sale ID</th>
+        <th>Date</th>
+        <th>Payment Method</th>
+        <th>Points Used</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>
+          <a href="{{ url_for('sales_bp.sale_detail', sale_id=sale.sale_id) }}">
+            {{ sale.sale_id }}
+          </a>
+        </td>
+        <td>{{ sale.sale_date }}</td>
+        <td>{{ sale.payment_method }}</td>
+        <td>{{ sale.rewards_points_used }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,6 +1,6 @@
 import mysql.connector
 
-def get_connection(): #returns a connection object
+def get_db_connection(): #returns a connection object
     db_config = {
         'host' : 'localhost',
         'user' : 'projectUser',

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>All Transactions</h2>
+  <div>
+    Sort by:
+    <a href="?sort=sale_date">Date</a> |
+    <a href="?sort=total_amount">Amount</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Sale ID</th>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>
+          <a href="{{ url_for('sales_bp.sale_detail', sale_id=sale.sale_id) }}">
+            {{ sale.sale_id }}
+          </a>
+        </td>
+        <td>{{ sale.sale_date }}</td>
+        <td>{{ sale.customer_first }} {{ sale.customer_last }}</td>
+        <td>{{ sale.total_amount }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

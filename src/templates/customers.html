@@ -20,16 +20,16 @@
     </tr>
   </thead>
   <tbody>
-    {% for customer in customers %}
+    {% for cust in customers %}
     <tr>
       <td>
-        <a href="{{ url_for('customers_bp.customer_detail', customer_id=customer.customer_id) }}">
-          {{ customer.customer_id }}
+        <a href="{{ url_for('customers_bp.customer_detail', customer_id=cust.customer_id) }}">
+          {{ cust.customer_id }}
         </a>
       </td>
-      <td>{{ customer.last_name }}</td>
-      <td>{{ customer.first_name }}</td>
-      <td>{{ customer.reward_points }}</td>
+      <td>{{ cust.last_name }}</td>
+      <td>{{ cust.first_name }}</td>
+      <td>{{ cust.reward_points }}</td>
     </tr>
     {% endfor %}
   </tbody>

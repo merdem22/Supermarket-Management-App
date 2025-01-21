@@ -1,0 +1,15 @@
+<!-- src/templates/analytics_home.html -->
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<h2>Analytics & Reports</h2>
+<ul>
+  <!-- Link to the existing routes for advanced queries -->
+  <li><a href="{{ url_for('reports_bp.top_selling_by_category') }}">Top-Selling Products by Category</a></li>
+  <li><a href="{{ url_for('reports_bp.monthly_sales') }}">Monthly Sales Totals</a></li>
+  <li><a href="{{ url_for('reports_bp.top_employees') }}">Employees Exceeding Average Sales</a></li>
+</ul>
+
+<p>Use the links above to navigate to each report.</p>
+{% endblock %}

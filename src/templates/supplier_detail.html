@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Supplier Detail{% endblock %}
+{% block content %}
+<h2>{{ supplier.supplier_name }}</h2>
+<p>{{ supplier.supplier_address }}</p>
+
+<h3>Products Supplied</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Product Name</th>
+      <th>Category</th>
+      <th>Unit Price</th>
+      <th>Quantity In Stock</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in supplied_products %}
+    <tr>
+      <td>
+        <a href="{{ url_for('products_bp.product_detail', product_id=product.product_id) }}">
+          {{ product.product_name }}
+        </a>
+      </td>
+      <td>{{ product.category }}</td>
+      <td>{{ product.unit_price }}</td>
+      <td>{{ product.quantity_in_stock }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

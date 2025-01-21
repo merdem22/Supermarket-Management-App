@@ -5,7 +5,9 @@ employees_bp = Blueprint('employees_bp', __name__)
 
 @employees_bp.route('/employees')
 def list_employees():
-    # We can allow sorting by last_name, first_name, or salary
+    """
+    Display employees, allowing sorting by last_name, first_name, or salary.
+    """
     sort_column = request.args.get('sort', 'last_name')
     allowed_sorts = ['last_name', 'first_name', 'salary']
     if sort_column not in allowed_sorts:
@@ -14,10 +16,10 @@ def list_employees():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Example query: join employee table to itself (to show the supervisor's name)
+    # Join employee to its supervisor
     query = f"""
-    SELECT e.employee_id, e.first_name, e.last_name, e.salary,
-           s.first_name AS supervisor_first, s.last_name AS supervisor_last
+    SELECT e.employee_id, e.first_name, e.last_name, e.salary, e.supervisor_id,
+           s.first_name AS supervisor_first, s.last_name AS supervisor_last, s.employee_id AS supervisor_eid
     FROM Employee e
     LEFT JOIN Employee s ON e.supervisor_id = s.employee_id
     ORDER BY e.{sort_column} ASC
@@ -32,20 +34,28 @@ def list_employees():
 
 @employees_bp.route('/employees/<int:employee_id>')
 def employee_detail(employee_id):
+    """
+    Show detail for a single employee, including supervisor info and subordinates.
+    """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     # Get the main employee
     cursor.execute("""
-        SELECT e.*, s.first_name AS supervisor_first, s.last_name AS supervisor_last
+        SELECT e.*, 
+               s.first_name AS supervisor_first, s.last_name AS supervisor_last, s.employee_id AS supervisor_eid
         FROM Employee e
         LEFT JOIN Employee s ON e.supervisor_id = s.employee_id
         WHERE e.employee_id = %s
     """, (employee_id,))
     employee = cursor.fetchone()
 
+    if not employee:
+        cursor.close()
+        conn.close()
+        return "Employee not found", 404
+
     # Optionally, find subordinates:
-    # (If you want to show who they supervise)
     cursor.execute("""
         SELECT e2.employee_id, e2.first_name, e2.last_name
         FROM Employee e2
@@ -56,10 +66,6 @@ def employee_detail(employee_id):
     cursor.close()
     conn.close()
 
-    if not employee:
-        return "Employee not found", 404
-
     return render_template('employee_detail.html',
                            employee=employee,
                            subordinates=subordinates)
-

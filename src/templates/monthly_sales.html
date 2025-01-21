@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Monthly Sales{% endblock %}
+{% block content %}
+<h2>Monthly Sales Totals</h2>
+
+<form method="GET" action="">
+  <label for="start_date">Start Date:</label>
+  <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+  
+  <label for="end_date">End Date:</label>
+  <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+  
+  <button type="submit">Filter</button>
+</form>
+
+<hr>
+
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th>Total Sales</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in results %}
+    <tr>
+      <td>{{ row.sale_month }}</td>
+      <td>{{ row.monthly_total }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

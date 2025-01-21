@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>{{ product.product_name }}</h2>
-  <p>Category: {{ product.category }}</p>
-  <p>Price: {{ product.unit_price }}</p>
-  <p>In Stock: {{ product.quantity_in_stock }}</p>
+<h2>{{ product.product_name }}</h2>
+<p>Category: 
+  <a href="{{ url_for('products_bp.products_by_category', category=product.category) }}">
+    {{ product.category }}
+  </a>
+</p>
+<p>Price: {{ product.unit_price }}</p>
+<p>In Stock: {{ product.quantity_in_stock }}</p>
 {% endblock %}

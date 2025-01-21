@@ -1,33 +1,74 @@
+<!-- templates/sales.html -->
 {% extends "base.html" %}
+{% block title %}All Sales{% endblock %}
+
 {% block content %}
-  <h2>All Transactions</h2>
-  <div>
-    Sort by:
-    <a href="?sort=sale_date">Date</a> |
-    <a href="?sort=total_amount">Amount</a>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Sale ID</th>
-        <th>Date</th>
-        <th>Customer</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sale in sales %}
-      <tr>
-        <td>
-          <a href="{{ url_for('sales_bp.sale_detail', sale_id=sale.sale_id) }}">
-            {{ sale.sale_id }}
-          </a>
-        </td>
-        <td>{{ sale.sale_date }}</td>
-        <td>{{ sale.customer_first }} {{ sale.customer_last }}</td>
-        <td>{{ sale.total_amount }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<h2>All Sales</h2>
+
+<table>
+  <thead>
+    <tr>
+      <!-- Sort by sale_id -->
+      <th>
+        <a href="?sort=sale_id&order={{ next_order }}">
+          Sale ID
+          {% if sort_column == 'sale_id' %}
+            ({{ order }})
+          {% endif %}
+        </a>
+      </th>
+
+      <!-- Sort by sale_date -->
+      <th>
+        <a href="?sort=sale_date&order={{ next_order }}">
+          Date
+          {% if sort_column == 'sale_date' %}
+            ({{ order }})
+          {% endif %}
+        </a>
+      </th>
+
+      <!-- Sort by customer_name -->
+      <th>
+        <a href="?sort=customer_name&order={{ next_order }}">
+          Customer
+          {% if sort_column == 'customer_name' %}
+            ({{ order }})
+          {% endif %}
+        </a>
+      </th>
+
+      <!-- Sort by total_amount -->
+      <th>
+        <a href="?sort=total_amount&order={{ next_order }}">
+          Total Amount
+          {% if sort_column == 'total_amount' %}
+            ({{ order }})
+          {% endif %}
+        </a>
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for sale in sales %}
+    <tr>
+      <!-- Link to Sale Detail -->
+      <td>
+        <a href="{{ url_for('sales_bp.sale_detail', sale_id=sale.sale_id) }}">
+          {{ sale.sale_id }}
+        </a>
+      </td>
+      <td>{{ sale.sale_date }}</td>
+      <td>
+        <!-- Link to Customer Detail Page (assuming blueprint 'customers_bp.customer_detail') -->
+        <a href="{{ url_for('customers_bp.customer_detail', customer_id=sale.customer_id) }}">
+          {{ sale.customer_first }} {{ sale.customer_last }}
+        </a>
+      </td>
+      <td>{{ sale.total_amount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

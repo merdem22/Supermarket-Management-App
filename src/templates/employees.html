@@ -3,7 +3,6 @@
 {% block content %}
 <h2>Employees</h2>
 
-<!-- Simple sorting links -->
 <div>
   Sort by:
   <a href="?sort=last_name">Last Name</a> |
@@ -24,13 +23,21 @@
   <tbody>
     {% for emp in employees %}
     <tr>
-      <td>{{ emp.employee_id }}</td>
+      <!-- link to employee detail -->
+      <td>
+        <a href="{{ url_for('employees_bp.employee_detail', employee_id=emp.employee_id) }}">
+          {{ emp.employee_id }}
+        </a>
+      </td>
       <td>{{ emp.last_name }}</td>
       <td>{{ emp.first_name }}</td>
       <td>{{ emp.salary }}</td>
       <td>
         {% if emp.supervisor_first %}
-          {{ emp.supervisor_first }} {{ emp.supervisor_last }}
+          <!-- Make supervisor clickable if they exist -->
+          <a href="{{ url_for('employees_bp.employee_detail', employee_id=emp.supervisor_id) }}">
+            {{ emp.supervisor_first }} {{ emp.supervisor_last }}
+          </a>
         {% else %}
           (No Supervisor)
         {% endif %}

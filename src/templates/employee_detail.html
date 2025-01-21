@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Employee Detail{% endblock %}
+{% block content %}
+<h2>{{ employee.first_name }} {{ employee.last_name }}</h2>
+<p>Salary: {{ employee.salary }}</p>
+<p>
+  Supervisor: 
+  {% if employee.supervisor_first %}
+    <a href="{{ url_for('employees_bp.employee_detail', employee_id=employee.supervisor_id) }}">
+      {{ employee.supervisor_first }} {{ employee.supervisor_last }}
+    </a>
+  {% else %}
+    (None)
+  {% endif %}
+</p>
+
+<h3>Subordinates</h3>
+{% if subordinates %}
+  <ul>
+    {% for sub in subordinates %}
+    <li>
+      <a href="{{ url_for('employees_bp.employee_detail', employee_id=sub.employee_id) }}">
+        {{ sub.first_name }} {{ sub.last_name }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>(No direct subordinates)</p>
+{% endif %}
+{% endblock %}

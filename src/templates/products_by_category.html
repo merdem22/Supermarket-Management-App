@@ -1,18 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Products</h2>
-<div>
-  Sort by: 
-  <a href="?sort=product_name">Name</a> | 
-  <a href="?sort=category">Category</a> | 
-  <a href="?sort=unit_price">Price</a> | 
-  <a href="?sort=quantity_in_stock">In Stock</a>
-</div>
+<h2>Products in Category: {{ category }}</h2>
 <table>
   <thead>
     <tr>
-      <th>Product Name</th>
-      <th>Category</th>
+      <th>Name</th>
       <th>Unit Price</th>
       <th>Stock</th>
     </tr>
@@ -23,12 +15,6 @@
       <td>
         <a href="{{ url_for('products_bp.product_detail', product_id=product.product_id) }}">
           {{ product.product_name }}
-        </a>
-      </td>
-      <!-- Category is now clickable to filter by that category -->
-      <td>
-        <a href="{{ url_for('products_bp.products_by_category', category=product.category) }}">
-          {{ product.category }}
         </a>
       </td>
       <td>{{ product.unit_price }}</td>

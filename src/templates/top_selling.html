@@ -1,0 +1,24 @@
+<!-- src/templates/top_selling.html -->
+{% extends "base.html" %}
+{% block title %}Top-Selling By Category{% endblock %}
+{% block content %}
+<h2>Top-Selling Product in Each Category</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Product</th>
+      <th>Units Sold</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in results %}
+    <tr>
+      <td>{{ row.category }}</td>
+      <td>{{ row.product_name }}</td>
+      <td>{{ row.total_sold }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

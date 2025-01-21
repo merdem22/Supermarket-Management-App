@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Suppliers{% endblock %}
+{% block content %}
+<h2>Suppliers</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>
+        <!-- Toggle sorting by supplier_name -->
+        <a href="?sort=supplier_name&order={{ next_order }}">
+          Name
+          {% if sort_col == 'supplier_name' %}
+            ({{ current_order }})
+          {% endif %}
+        </a>
+      </th>
+      <th>
+        <!-- Toggle sorting by supplier_address -->
+        <a href="?sort=supplier_address&order={{ next_order }}">
+          Address
+          {% if sort_col == 'supplier_address' %}
+            ({{ current_order }})
+          {% endif %}
+        </a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sup in suppliers %}
+    <tr>
+      <td>
+        <a href="{{ url_for('suppliers_bp.supplier_detail', supplier_id=sup.supplier_id) }}">
+          {{ sup.supplier_name }}
+        </a>
+      </td>
+      <td>{{ sup.supplier_address }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
